@@ -15,11 +15,13 @@
 #include "scene/color4.hpp"
 #include "scene/scene_node.hpp"
 
+#include <string>
+
 namespace cg
 {
 
 /**
- * Presentation node. Holds material properties.
+ * Presentation node. Holds material properties and texture.
  */
 class PresentationNode : public SceneNode
 {
@@ -42,6 +44,11 @@ class PresentationNode : public SceneNode
                      const Color4 &specular,
                      const Color4 &emission,
                      float         shininess);
+
+    /**
+     * Destructor
+     */
+    ~PresentationNode();
 
     /**
      * Set material ambient reflection coefficient.
@@ -81,7 +88,26 @@ class PresentationNode : public SceneNode
     void set_material_shininess(float s);
 
     /**
-     * Draw. Sets the material properties.
+     * NEW: Load a texture from file.
+     * @param  filename     Texture file name (will search in textures/ directory)
+     * @param  use_mipmaps  Whether to generate and use mipmaps (default true)
+     * @return  Returns true if successful
+     */
+    bool load_texture(const std::string &filename, bool use_mipmaps = true);
+
+    /**
+     * NEW: Enable or disable texture usage.
+     * @param  enable  True to enable texture, false to disable
+     */
+    void enable_texture(bool enable);
+
+    /**
+     * NEW: Bind the texture for rendering.
+     */
+    void bind_texture();
+
+    /**
+     * Draw. Sets the material properties and texture.
      * @param  scene_state  Scene state (holds material uniform locations)
      */
     void draw(SceneState &scene_state) override;
@@ -92,6 +118,11 @@ class PresentationNode : public SceneNode
     Color4  material_specular_;
     Color4  material_emission_;
     GLfloat material_shininess_;
+
+    // NEW: Texture properties
+    GLuint texture_id_;
+    bool   has_texture_;
+    bool   use_texture_;
 };
 
 } // namespace cg

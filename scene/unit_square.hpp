@@ -29,6 +29,18 @@ class UnitSquareSurface : public TriSurface
      */
     UnitSquareSurface(uint32_t n, int32_t position_loc, int32_t normal_loc);
 
+    /**
+     * Creates a unit length and width "flat surface" with texture coordinates.
+     * The surface is composed of triangles such that the unit length/width 
+     * surface is divided into n equal paritions in both x and y. Constructs a 
+     * vertex list and face list for the surface with texture coordinates.
+     * @param  n              Number of subdivisions in x and y
+     * @param  position_loc   Location of position attribute in shader
+     * @param  normal_loc     Location of normal attribute in shader
+     * @param  tex_coord_loc  Location of texture coordinate attribute in shader
+     */
+    UnitSquareSurface(uint32_t n, int32_t position_loc, int32_t normal_loc, int32_t tex_coord_loc);
+
   private:
     // Make default constructor private to force use of the constructor
     // with number of subdivisions.

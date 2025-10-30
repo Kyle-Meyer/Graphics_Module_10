@@ -37,4 +37,41 @@ UnitSquareSurface::UnitSquareSurface(uint32_t n, int32_t position_loc, int32_t n
     std::cout << " face list size = " << faces_.size() << '\n';
 }
 
+UnitSquareSurface::UnitSquareSurface(uint32_t n, int32_t position_loc, int32_t normal_loc, int32_t tex_coord_loc)
+{
+    // Only allow 250 subdivision (so it creates less that 65K vertices)
+    if(n > 250) n = 250;
+
+    // Create VBOs and VAO with texture coordinates
+    // Normal is 0,0,1. z = 0 so all vertices lie in x,y plane.
+    // Texture coordinates map from (0,0) to (1,1) across the unit square
+    VertexNormalTexture vtx;
+    vtx.normal = {0.0f, 0.0f, 1.0f};
+    vtx.vertex.z = 0.0f;
+    
+    float spacing = 1.0f / static_cast<float>(n);
+    float tex_spacing = 1.0f / static_cast<float>(n);
+    
+    for(uint32_t row = 0; row <= n; ++row)
+    {
+        vtx.vertex.y = -0.5f + row * spacing;
+        vtx.texcoord.y = static_cast<float>(row) * tex_spacing;
+        
+        for(uint32_t col = 0; col <= n; ++col)
+        {
+            vtx.vertex.x = -0.5f + col * spacing;
+            vtx.texcoord.x = static_cast<float>(col) * tex_spacing;
+            
+            vertices_with_tex_.push_back(vtx);
+        }
+    }
+
+    // Construct the face list and create VBOs with texture coordinates
+    construct_row_col_face_list(n + 1, n + 1);
+    create_vertex_buffers(position_loc, normal_loc, tex_coord_loc);
+
+    std::cout << "vertex list size = " << vertices_with_tex_.size();
+    std::cout << " face list size = " << faces_.size() << '\n';
+}
+
 } // namespace cg

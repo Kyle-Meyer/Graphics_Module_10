@@ -51,6 +51,7 @@ struct SceneState
     GLint position_loc;  // Vertex position attribute location
     GLint vtx_color_loc; // Vertex color attribute location
     GLint normal_loc;    // Vertex normal
+    GLint texcoord_loc;  // NEW: Texture coordinate attribute location
 
     // Uniform locations
     GLint ortho_matrix_loc;    // Orthographic projection location (2-D)
@@ -66,6 +67,10 @@ struct SceneState
     GLint material_specular_loc;  // Material specular reflection location
     GLint material_emission_loc;  // Material emission location
     GLint material_shininess_loc; // Material shininess location
+
+    // NEW: Texture uniform locations
+    GLint texture_sampler_loc; // Texture sampler uniform location
+    GLint use_texture_loc;     // Use texture flag uniform location
 
     // Lights
     uint32_t      max_enabled_light; // Index of the maximum enabled light index

@@ -3,7 +3,9 @@
 namespace cg
 {
 
-TriSurface::TriSurface() : vao_{0}, vbo_{0}, facebuffer_{0}, GeometryNode() {}
+TriSurface::TriSurface() : vao_{0}, vbo_{0}, facebuffer_{0}, has_texture_coords_{false}, GeometryNode()
+{
+}
 
 TriSurface::~TriSurface()
 {
@@ -24,6 +26,7 @@ void TriSurface::construct(const std::vector<VertexAndNormal> &v, const std::vec
 {
     vertices_ = v;
     faces_ = f;
+    has_texture_coords_ = false;
 }
 
 void TriSurface::add_polygon(const std::vector<Point3> &vertex_list)
@@ -98,6 +101,8 @@ void TriSurface::end(int32_t position_loc, int32_t normal_loc)
 
 void TriSurface::create_vertex_buffers(int32_t position_loc, int32_t normal_loc)
 {
+    has_texture_coords_ = false;
+
     // Generate vertex buffers for the vertex list and the face list
     glGenBuffers(1, &vbo_);
     glGenBuffers(1, &facebuffer_);
@@ -136,15 +141,77 @@ void TriSurface::create_vertex_buffers(int32_t position_loc, int32_t normal_loc)
 
     // Make sure changes to this VAO are local
     glBindVertexArray(0);
+}
 
-    // We could clear any local memory as it is now in the VBO. However there may be
-    // cases where we want to keep it (e.g. collision detection, picking) so I am not
-    // going to do that here.
+// Version with texture coordinates
+void TriSurface::create_vertex_buffers(int32_t position_loc, int32_t normal_loc, int32_t texcoord_loc)
+{
+    has_texture_coords_ = true;
+
+    // Generate vertex buffers for the vertex list and the face list
+    glGenBuffers(1, &vbo_);
+    glGenBuffers(1, &facebuffer_);
+
+    // Bind the vertex list to the vertex buffer object
+    glBindBuffer(GL_ARRAY_BUFFER, vbo_);
+    glBufferData(GL_ARRAY_BUFFER,
+                 vertices_with_tex_.size() * sizeof(VertexNormalTexture),
+                 (void *)&vertices_with_tex_[0],
+                 GL_STATIC_DRAW);
+
+    // Bind the face list to the vertex buffer object
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, facebuffer_);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+                 faces_.size() * sizeof(uint16_t),
+                 (void *)&faces_[0],
+                 GL_STATIC_DRAW);
+
+    // Copy the face list count for use in Draw
+    face_count_ = static_cast<GLsizei>(faces_.size());
+
+    // Allocate a VAO, enable it and set the vertex attribute arrays and pointers
+    glGenVertexArrays(1, &vao_);
+    glBindVertexArray(vao_);
+
+    // Bind the vertex buffer, set the vertex attributes
+    glBindBuffer(GL_ARRAY_BUFFER, vbo_);
+    
+    // Position attribute (location 0)
+    if(position_loc >= 0)
+    {
+        glVertexAttribPointer(position_loc, 3, GL_FLOAT, GL_FALSE, 
+                             sizeof(VertexNormalTexture), 
+                             (void *)0);
+        glEnableVertexAttribArray(position_loc);
+    }
+    
+    // Normal attribute (location 1)
+    if(normal_loc >= 0)
+    {
+        glVertexAttribPointer(normal_loc, 3, GL_FLOAT, GL_FALSE, 
+                             sizeof(VertexNormalTexture), 
+                             (void *)(sizeof(Point3)));
+        glEnableVertexAttribArray(normal_loc);
+    }
+    
+    //Texture coordinate attribute (location 2)
+    if(texcoord_loc >= 0)
+    {
+        glVertexAttribPointer(texcoord_loc, 2, GL_FLOAT, GL_FALSE, 
+                             sizeof(VertexNormalTexture), 
+                             (void *)(sizeof(Point3) + sizeof(Vector3)));
+        glEnableVertexAttribArray(texcoord_loc);
+    }
+
+    // Bind the face list buffer
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, facebuffer_);
+
+    // Make sure changes to this VAO are local
+    glBindVertexArray(0);
 }
 
 void TriSurface::construct_row_col_face_list(uint32_t num_rows, uint32_t num_cols)
 {
-
     for(uint32_t row = 0; row < num_rows - 1; row++)
     {
         for(uint32_t col = 0; col < num_cols - 1; col++)
@@ -164,7 +231,6 @@ void TriSurface::construct_row_col_face_list(uint32_t num_rows, uint32_t num_col
 
 uint16_t TriSurface::get_index(uint32_t row, uint32_t col, uint32_t num_cols) const
 {
-
     return static_cast<uint16_t>((row * num_cols) + col);
 }
 

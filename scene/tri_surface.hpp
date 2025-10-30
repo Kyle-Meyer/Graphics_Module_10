@@ -20,7 +20,7 @@ namespace cg
 
 /**
  * Triangle mesh surface. Uses indexed vertex arrays. Stores
- * vertices as VertexAndNormal.
+ * vertices as VertexAndNormal or VertexNormalTexture.
  */
 class TriSurface : public GeometryNode
 {
@@ -73,9 +73,14 @@ class TriSurface : public GeometryNode
     void end(int32_t position_loc, int32_t normal_loc);
 
     /**
-     * Creates vertex buffers for this object.
+     * Creates vertex buffers for this object (without texture coordinates).
      */
     void create_vertex_buffers(int32_t position_loc, int32_t normal_loc);
+
+    /**
+     * Creates vertex buffers for this object (with texture coordinates).
+     */
+    void create_vertex_buffers(int32_t position_loc, int32_t normal_loc, int32_t texcoord_loc);
 
   protected:
     // Vertex buffer support
@@ -86,6 +91,10 @@ class TriSurface : public GeometryNode
 
     // Vertex and normal list
     std::vector<VertexAndNormal> vertices_;
+
+    // Vertex, normal, and texture coordinate list
+    std::vector<VertexNormalTexture> vertices_with_tex_;
+    bool                             has_texture_coords_;
 
     // Use uint16_t for face list indexes (OpenGL ES compatible)
     std::vector<uint16_t> faces_;

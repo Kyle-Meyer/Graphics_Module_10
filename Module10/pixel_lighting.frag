@@ -186,25 +186,26 @@ void main()
       else point_light(i, n, vertex, V, ambient, diffuse, specular);
    }
 
-   // Compute color. Emmission + global ambient contribution + light sources ambient, diffuse,
-   // and specular contributions
-   vec4 color = material_emission + global_light_ambient * material_ambient +
+   // Compute Phong shading color
+   vec4 phong_color = material_emission + global_light_ambient * material_ambient +
 			(ambient  * material_ambient) + (diffuse  * material_diffuse) + (specular * material_specular);
      
-	frag_color = clamp(color, 0.0, 1.0);
-
+   // NEW: Apply texture if enabled
    vec4 final_color;
    if (use_texture)
    {
-       // Sample the texture at interpolated coordinates
-       vec4 tex_color = texture(texture_sampler, texcoord);
-       
-       // Modulate: multiply texture color with lighting
-       final_color = tex_color * phong_color;
+      // Sample the texture
+      vec4 tex_color = texture(texture_sampler, texcoord);
+      
+      // Modulate: multiply texture color with Phong shading
+      // This combines lighting with texture
+      final_color = tex_color * phong_color;
    }
    else
    {
-       // No texture, just Phong lighting
-       final_color = phong_color;
+      // No texture, just use Phong shading
+      final_color = phong_color;
    }
+   
+   frag_color = clamp(final_color, 0.0, 1.0);
 }

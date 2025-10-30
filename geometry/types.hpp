@@ -14,7 +14,7 @@
 
 #include "geometry/point3.hpp"
 #include "geometry/vector3.hpp"
-
+#include "geometry/point2.hpp"
 namespace cg
 {
 
@@ -30,6 +30,20 @@ struct VertexAndNormal
 
     VertexAndNormal(const Point3 &v);
 };
+
+struct VertexNormalTexture
+   {
+       Point3  vertex;
+       Vector3 normal;
+       Point2  texcoord;
+
+       VertexNormalTexture() : vertex(), normal(), texcoord() {}
+       VertexNormalTexture(const Point3 &v) : vertex(v), normal(), texcoord() {}
+       VertexNormalTexture(const Point3 &v, const Vector3 &n) : 
+           vertex(v), normal(n), texcoord() {}
+       VertexNormalTexture(const Point3 &v, const Vector3 &n, const Point2 &t) :
+           vertex(v), normal(n), texcoord(t) {}
+   };
 
 } // namespace cg
 

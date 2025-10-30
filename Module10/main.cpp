@@ -321,7 +321,8 @@ void add_sub_tree(std::shared_ptr<cg::SceneNode> parent,
  * @param  unit_square  Geometry node to use
  * @return Returns a scene node that describes the room.
  */
-std::shared_ptr<cg::SceneNode> construct_room(std::shared_ptr<cg::UnitSquareSurface> unit_square)
+std::shared_ptr<cg::SceneNode> construct_room(std::shared_ptr<cg::UnitSquareSurface> unit_square,
+                                               std::shared_ptr<cg::UnitSquareSurface> textured_floor)
 {
     // Contruct transform nodes for the walls. Perform rotations so the
     // walls face inwards
@@ -364,7 +365,7 @@ std::shared_ptr<cg::SceneNode> construct_room(std::shared_ptr<cg::UnitSquareSurf
                                                                  cg::Color4(0.1f, 0.1f, 0.1f),
                                                                  cg::Color4(0.0f, 0.0f, 0.0f),
                                                                  5.0f);
-
+   floor_material->load_texture("floor_tiles.jpg", true);
     // Make the walls reddish, slightly shiny
     auto wall_material = std::make_shared<cg::PresentationNode>(cg::Color4(0.35f, 0.225f, 0.275f),
                                                                 cg::Color4(0.7f, 0.55f, 0.55f),
@@ -393,7 +394,7 @@ std::shared_ptr<cg::SceneNode> construct_room(std::shared_ptr<cg::UnitSquareSurf
 
     // Add floor and ceiling to the parent. Use convenience method to add
     // presentation, then transform, then geometry.
-    add_sub_tree(room, floor_material, floor_transform, unit_square);
+    add_sub_tree(room, floor_material, floor_transform, textured_floor);
     add_sub_tree(room, ceiling_material, ceiling_transform, unit_square);
 
     return room;
@@ -651,6 +652,7 @@ void construct_scene()
     // Get the position and normal locations to use when constructing VAOs
     int32_t position_loc = shader->get_position_loc();
     int32_t normal_loc = shader->get_normal_loc();
+    int32_t texcoord_loc = shader->get_texcoord_loc(); 
 
     // Add the camera to the scene
     // Initialize the view and set a perspective projection
@@ -666,6 +668,14 @@ void construct_scene()
     // Construct subdivided square - subdivided 10x in both x and y
     auto unit_square = std::make_shared<cg::UnitSquareSurface>(2, position_loc, normal_loc);
 
+    // NEW: Create textured floor with texture coordinates
+    auto textured_floor = std::make_shared<cg::UnitSquareSurface>(
+        40,           // More subdivisions for better quality
+        position_loc, 
+        normal_loc,
+        texcoord_loc // Texture coordinate location
+        );  
+
     // Construct a unit cylinder surface
     auto cylinder = std::make_shared<cg::ConicSurface>(0.5f, 0.5f, 18, 4, position_loc, normal_loc);
 
@@ -673,7 +683,7 @@ void construct_scene()
     auto cone = std::make_shared<cg::ConicSurface>(0.5f, 0.0f, 18, 4, position_loc, normal_loc);
 
     // Construct the room as a child of the root node
-    auto room = construct_room(unit_square);
+    auto room = construct_room(unit_square, textured_floor);
 
     // Construct a unit box
     auto unit_box = construct_unit_box(unit_square);
