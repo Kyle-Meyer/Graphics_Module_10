@@ -21,6 +21,12 @@ bool LightingShaderNode::get_locations()
         return false;
     }
 
+    texcoord_loc_ = glGetAttribLocation(shader_program_.get_program(), "vtx_texcoord");
+    if(texcoord_loc_ < 0)
+    {
+        std::cout << "Warning: vtx_texcoord location not found (may be optimized out if not used)\n";
+    }
+
     pvm_matrix_loc_ = glGetUniformLocation(shader_program_.get_program(), "pvm_matrix");
     if(pvm_matrix_loc_ < 0)
     {
@@ -88,9 +94,6 @@ bool LightingShaderNode::get_locations()
         std::cout << "LightingShaderNode: Error getting global ambient location\n";
     }
 
-    // TODO - may want to check for errors - however any uniforms that are not yet
-    // used will be "optimized out" during the compile and can return loc < 0
-
     // Populate material uniform locations in scene state
     material_ambient_loc_ = glGetUniformLocation(shader_program_.get_program(), "material_ambient");
     material_diffuse_loc_ = glGetUniformLocation(shader_program_.get_program(), "material_diffuse");
@@ -100,6 +103,18 @@ bool LightingShaderNode::get_locations()
         glGetUniformLocation(shader_program_.get_program(), "material_emission");
     material_shininess_loc_ =
         glGetUniformLocation(shader_program_.get_program(), "material_shininess");
+
+    texture_sampler_loc_ = glGetUniformLocation(shader_program_.get_program(), "texture_sampler");
+    if(texture_sampler_loc_ < 0)
+    {
+        std::cout << "Warning: texture_sampler location not found\n";
+    }
+
+    use_texture_loc_ = glGetUniformLocation(shader_program_.get_program(), "use_texture");
+    if(use_texture_loc_ < 0)
+    {
+        std::cout << "Warning: use_texture location not found\n";
+    }
 
     return true;
 }
@@ -112,6 +127,7 @@ void LightingShaderNode::draw(SceneState &scene_state)
     // Set scene state locations to ones needed for this program
     scene_state.position_loc = position_loc_;
     scene_state.normal_loc = vertex_normal_loc_;
+    scene_state.texcoord_loc = texcoord_loc_; 
     scene_state.pvm_matrix_loc = pvm_matrix_loc_;
     scene_state.model_matrix_loc = model_matrix_loc_;
     scene_state.normal_matrix_loc = normal_matrix_loc_;
@@ -123,6 +139,9 @@ void LightingShaderNode::draw(SceneState &scene_state)
     scene_state.material_specular_loc = material_specular_loc_;
     scene_state.material_emission_loc = material_emission_loc_;
     scene_state.material_shininess_loc = material_shininess_loc_;
+
+    scene_state.texture_sampler_loc = texture_sampler_loc_;
+    scene_state.use_texture_loc = use_texture_loc_;
 
     // Set the light locations
     scene_state.lightcount_loc = light_count_loc_;
@@ -141,5 +160,7 @@ void LightingShaderNode::set_global_ambient(const Color4 &global_ambient)
 int LightingShaderNode::get_position_loc() const { return position_loc_; }
 
 int LightingShaderNode::get_normal_loc() const { return vertex_normal_loc_; }
+
+int LightingShaderNode::get_texcoord_loc() const { return texcoord_loc_; }
 
 } // namespace cg

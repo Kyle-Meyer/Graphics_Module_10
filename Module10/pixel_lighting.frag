@@ -6,6 +6,8 @@
 layout (location = 0) smooth in vec3 normal;
 layout (location = 1) smooth in vec3 vertex;
 
+layout (location = 2) smooth in vec2 texcoord;
+
 layout (location = 0) out vec4 frag_color; 
 
 // Uniforms for material properties
@@ -17,6 +19,9 @@ uniform float material_shininess;
 
 // Global lighting environment ambient intensity
 uniform vec4  global_light_ambient;
+
+uniform sampler2D texture_sampler;  // The texture image
+uniform bool use_texture;           // Flag to enable/disable
 
 // Camera position in world coordinates
 uniform vec3  camera_position;
@@ -187,4 +192,19 @@ void main()
 			(ambient  * material_ambient) + (diffuse  * material_diffuse) + (specular * material_specular);
      
 	frag_color = clamp(color, 0.0, 1.0);
+
+   vec4 final_color;
+   if (use_texture)
+   {
+       // Sample the texture at interpolated coordinates
+       vec4 tex_color = texture(texture_sampler, texcoord);
+       
+       // Modulate: multiply texture color with lighting
+       final_color = tex_color * phong_color;
+   }
+   else
+   {
+       // No texture, just Phong lighting
+       final_color = phong_color;
+   }
 }

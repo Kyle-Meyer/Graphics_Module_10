@@ -44,6 +44,30 @@ class SphereSection : public TriSurface
                   int32_t  position_loc,
                   int32_t  normal_loc);
 
+    /**
+     * 
+     * @param   min_lat       Minimum latitude
+     * @param   max_lat       Maximum latitude
+     * @param   num_lat       Number of divisions of latitude
+     * @param   min_lon       Minimum longitude
+     * @param   max_lon       Maximum longitude
+     * @param   num_lon       Number of divisions of longitude
+     * @param   radius        Radius of the sphere
+     * @param   position_loc  Position attribute location
+     * @param   normal_loc    Normal attribute location
+     * @param   texcoord_loc  Texture coordinate attribute location
+     */
+    SphereSection(float    min_lat,
+                  float    max_lat,
+                  uint32_t num_lat,
+                  float    min_lon,
+                  float    max_lon,
+                  uint32_t num_lon,
+                  float    radius,
+                  int32_t  position_loc,
+                  int32_t  normal_loc,
+                  int32_t  texcoord_loc);
+
   private:
     // Make default constructor private to force use of the constructor
     // with number of subdivisions.

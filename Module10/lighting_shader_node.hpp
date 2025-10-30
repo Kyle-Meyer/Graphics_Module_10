@@ -55,10 +55,18 @@ class LightingShaderNode : public ShaderNode
      */
     int32_t get_normal_loc() const;
 
+
+    /**
+     * Get the location of the texture coordinate attribute.
+     * @return  Returns the texture coordinate attribute location.
+     */
+    int32_t get_texcoord_loc() const;
+
   protected:
     // Uniform and attribute locations:
     GLint position_loc_;       // Vertex position attribute location
     GLint vertex_normal_loc_;  // Vertex normal attribute location
+    GLint texcoord_loc_;       // Texture coordinate attribute location
     GLint pvm_matrix_loc_;     // Composite projection, view, model matrix location
     GLint model_matrix_loc_;   // Modeling composite matrix location
     GLint normal_matrix_loc_;  // Normal transformation matrix location
@@ -71,6 +79,8 @@ class LightingShaderNode : public ShaderNode
     GLint material_emission_loc_;  // Material emission location
     GLint material_shininess_loc_; // Material shininess location
 
+    GLint texture_sampler_loc_; // Texture sampler location
+    GLint use_texture_loc_;     // Use texture flag location
     // Lighting uniforms
     int32_t       light_count_;        // Number of lights
     GLint         light_count_loc_;    // Light count uniform locations
