@@ -34,7 +34,19 @@ class SurfaceOfRevolution : public TriSurface
                         uint32_t             n,
                         int32_t              position_loc,
                         int32_t              normal_loc);
-
+    /**
+     * Construct a surface of revolution with texture coordinates.
+     * @param  v             Edge/polyline to revolve
+     * @param  n             Number of angular subdivisions
+     * @param  position_loc  Position attribute location
+     * @param  normal_loc    Normal attribute location
+     * @param  texcoord_loc  Texture coordinate attribute location
+     */
+    SurfaceOfRevolution(std::vector<Point3> &v,
+                        uint32_t             n,
+                        int32_t              position_loc,
+                        int32_t              normal_loc,
+                        int32_t              texcoord_loc);
   private:
     uint32_t num_rows_;
     uint32_t num_cols_;

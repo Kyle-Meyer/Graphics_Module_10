@@ -58,7 +58,7 @@ void load_image_data(ImageData &im_data, const std::string &filename, bool inclu
         std::cout << "Error getting finding file " << filename << '\n';
         return;
     }
-
+    stbi_set_flip_vertically_on_load(true);
     im_data.data = stbi_load(file_info.file_path.c_str(),
                              &im_data.w,
                              &im_data.h,

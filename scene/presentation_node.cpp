@@ -60,7 +60,7 @@ bool PresentationNode::load_texture(const std::string &filename, bool use_mipmap
 {
     // Load image data using existing function
     ImageData img_data;
-    load_image_data(img_data, filename, false); // Load as RGB
+    load_image_data(img_data, filename, true); // Load as RGB
 
     if(img_data.data == nullptr)
     {

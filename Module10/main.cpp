@@ -360,11 +360,13 @@ std::shared_ptr<cg::SceneNode> construct_room(std::shared_ptr<cg::UnitSquareSurf
     ceiling_transform->scale(200.0f, 200.0f, 1.0f);
 
     // Floor should be tan, mostly dull
-    auto floor_material = std::make_shared<cg::PresentationNode>(cg::Color4(0.15f, 0.22f, 0.05f),
-                                                                 cg::Color4(0.3f, 0.45f, 0.1f),
-                                                                 cg::Color4(0.1f, 0.1f, 0.1f),
-                                                                 cg::Color4(0.0f, 0.0f, 0.0f),
-                                                                 5.0f);
+
+   auto floor_material = std::make_shared<cg::PresentationNode>(
+    cg::Color4(1.0f, 1.0f, 1.0f, 1.0f),  // WHITE ambient - don't tint
+    cg::Color4(1.0f, 1.0f, 1.0f, 1.0f),  // WHITE diffuse - don't tint
+    cg::Color4(0.2f, 0.2f, 0.2f, 1.0f),  // Low specular
+    cg::Color4(0.0f, 0.0f, 0.0f, 1.0f),  // No emission
+    32.0f);
    floor_material->load_texture("floor_tiles.jpg", true);
     // Make the walls reddish, slightly shiny
     auto wall_material = std::make_shared<cg::PresentationNode>(cg::Color4(0.35f, 0.225f, 0.275f),
@@ -546,18 +548,20 @@ std::shared_ptr<cg::SceneNode> construct_vase(const int position_loc, const int 
 /**
  * Construct a sphere with a shiny blue material.
  */
-std::shared_ptr<cg::SceneNode> construct_shiny_sphere(int32_t position_loc, int32_t normal_loc)
+std::shared_ptr<cg::SceneNode> construct_shiny_sphere(int32_t position_loc, int32_t normal_loc, int32_t texcoord_loc)
 {
     auto sphere = std::make_shared<cg::SphereSection>(
-        -90.0f, 90.0f, 18, -180.0f, 180.0f, 36, 1.0f, position_loc, normal_loc);
+        -90.0f, 90.0f, 18, -180.0f, 180.0f, 36, 1.0f, position_loc, normal_loc, texcoord_loc);
 
     // Shiny blue
-    auto shiny_blue = std::make_shared<cg::PresentationNode>(cg::Color4(0.05f, 0.05f, 0.2f),
-                                                             cg::Color4(0.2f, 0.2f, 0.7f),
-                                                             cg::Color4(1.0f, 1.0f, 1.0f),
-                                                             cg::Color4(0.0f, 0.0f, 0.0f),
-                                                             85.0f);
+    auto shiny_blue = std::make_shared<cg::PresentationNode>(
+    cg::Color4(1.0f, 1.0f, 1.0f, 1.0f),  // WHITE - let texture show through
+    cg::Color4(1.0f, 1.0f, 1.0f, 1.0f),  // WHITE
+    cg::Color4(0.3f, 0.3f, 0.3f, 1.0f),  // Some specular for shine
+    cg::Color4(0.0f, 0.0f, 0.0f, 1.0f),
+    32.0f);
 
+    shiny_blue->load_texture("earthp2.jpg", true);
     // Sphere
     auto sphere_transform = std::make_shared<cg::TransformNode>();
     sphere_transform->translate(80.0f, 20.0f, 10.0f);
@@ -567,6 +571,94 @@ std::shared_ptr<cg::SceneNode> construct_shiny_sphere(int32_t position_loc, int3
     auto shiny_sphere = std::make_shared<cg::SceneNode>();
     add_sub_tree(shiny_sphere, shiny_blue, sphere_transform, sphere);
     return shiny_sphere;
+}
+
+std::shared_ptr<cg::SceneNode> create_painting(int32_t position_loc,
+                                                int32_t normal_loc,
+                                                int32_t texcoord_loc)
+{
+    auto painting_subtree = std::make_shared<cg::SceneNode>();
+    painting_subtree->set_name("Painting Subtree");
+    
+    // Material for painting - use white to show texture clearly
+    auto painting_material = std::make_shared<cg::PresentationNode>(
+        cg::Color4(1.0f, 1.0f, 1.0f, 1.0f),  // white ambient
+        cg::Color4(1.0f, 1.0f, 1.0f, 1.0f),  // white diffuse  
+        cg::Color4(0.2f, 0.2f, 0.2f, 1.0f),  // low specular
+        cg::Color4(0.0f, 0.0f, 0.0f, 1.0f),  // no emission
+        16.0f);                               // low shininess
+    painting_material->set_name("Painting Material");
+    
+    // Load dogs playing poker texture
+    painting_material->load_texture("dogs_poker.jpg", true);
+    
+    // Geometry - unit square
+    auto painting_geom = std::make_shared<cg::UnitSquareSurface>(
+        10, position_loc, normal_loc, texcoord_loc);
+    painting_geom->set_name("Painting");
+    
+    // Transform - scale to make rectangular and position on back wall
+    auto painting_transform = std::make_shared<cg::TransformNode>();
+    painting_transform->set_name("Painting Transform");
+    painting_transform->translate(0.0f, 98.0f, 50.0f);    // Back wall (y=100), centered, mid-height
+    painting_transform->rotate_x(90.0f);                    // Same rotation as back wall
+    painting_transform->rotate_z(180);
+    painting_transform->scale(40.0f, 30.0f, 1.0f);          // Make it rectangular
+    // Build scene graph
+    painting_subtree->add_child(painting_material);
+    painting_material->add_child(painting_transform);
+    painting_transform->add_child(painting_geom);
+    
+    return painting_subtree;
+}
+
+//=============================================================================
+// Create Coke can on table
+//=============================================================================
+std::shared_ptr<cg::SceneNode> create_coke_can(int32_t position_loc,
+                                                int32_t normal_loc,
+                                                int32_t texcoord_loc)
+{
+    auto can_subtree = std::make_shared<cg::SceneNode>();
+    can_subtree->set_name("Coke Can Subtree");
+    
+    // Material for can
+    auto can_material = std::make_shared<cg::PresentationNode>(
+    cg::Color4(1.0f, 1.0f, 1.0f, 1.0f),  // WHITE ambient - not red/colored
+    cg::Color4(1.0f, 1.0f, 1.0f, 1.0f),  // WHITE diffuse - not red/colored
+    cg::Color4(0.3f, 0.3f, 0.3f, 1.0f),  // Some specular for shine
+    cg::Color4(0.0f, 0.0f, 0.0f, 1.0f),  // No emission
+    32.0f);
+    can_material->set_name("Can Material");
+    
+    // Load Coke can texture
+    can_material->load_texture("cokecan.jpg", true);
+    
+    // Create cylinder using SurfaceOfRevolution
+    // Define cylinder profile (straight vertical line)
+    std::vector<cg::Point3> cylinder_profile;
+    for(int i = 0; i <= 10; i++) 
+    {
+      float height = static_cast<float>(i);
+      cylinder_profile.push_back(cg::Point3(3.0f, 0.0f, height));
+    }
+    
+    auto can_geom = std::make_shared<cg::SurfaceOfRevolution>(
+        cylinder_profile, 36, position_loc, normal_loc, texcoord_loc);
+    can_geom->set_name("Coke Can");
+    
+    // Transform - place on table surface
+    auto can_transform = std::make_shared<cg::TransformNode>();
+    can_transform->set_name("Can Transform");
+    can_transform->translate(-40.0f, 60.0f, 26.0f);  // On table surface
+    can_transform->rotate_z(90);
+
+    // Build scene graph
+    can_subtree->add_child(can_material);
+    can_material->add_child(can_transform);
+    can_transform->add_child(can_geom);
+    
+    return can_subtree;
 }
 
 /**
@@ -673,8 +765,8 @@ void construct_scene()
         40,           // More subdivisions for better quality
         position_loc, 
         normal_loc,
-        texcoord_loc // Texture coordinate location
-        );  
+        texcoord_loc, // Texture coordinate location
+        10.0f);  
 
     // Construct a unit cylinder surface
     auto cylinder = std::make_shared<cg::ConicSurface>(0.5f, 0.5f, 18, 4, position_loc, normal_loc);
@@ -752,7 +844,7 @@ void construct_scene()
     auto vase = construct_vase(position_loc, normal_loc);
 
     // Sphere
-    auto shiny_sphere = construct_shiny_sphere(position_loc, normal_loc);
+    auto shiny_sphere = construct_shiny_sphere(position_loc, normal_loc, texcoord_loc);
 
     // Torus
     auto shiny_torus = construct_shiny_torus(position_loc, normal_loc);
@@ -777,7 +869,7 @@ void construct_scene()
     table_transform->add_child(table);
 
     // Add teapot as a child of the table transform.
-    add_sub_tree(table_transform, teapot_material, teapot_transform, teapot);
+    //add_sub_tree(table_transform, teapot_material, teapot_transform, teapot);
 
     // Add box in the back right corner with the cone on top
     myscene->add_child(box_position_transform);
@@ -787,7 +879,13 @@ void construct_scene()
     // Add the vase, sphere, and torus
     myscene->add_child(vase);
     myscene->add_child(shiny_sphere);
-    myscene->add_child(shiny_torus);
+    //myscene->add_child(shiny_torus);
+
+    // Add painting to scene
+    myscene->add_child(create_painting(position_loc, normal_loc, texcoord_loc));
+    
+    // Add Coke can to scene
+    myscene->add_child(create_coke_can(position_loc, normal_loc, texcoord_loc));
 }
 
 /**
