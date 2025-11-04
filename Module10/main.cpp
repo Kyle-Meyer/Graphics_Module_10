@@ -560,11 +560,12 @@ std::shared_ptr<cg::SceneNode> construct_shiny_sphere(int32_t position_loc, int3
     cg::Color4(0.3f, 0.3f, 0.3f, 1.0f),  // Some specular for shine
     cg::Color4(0.0f, 0.0f, 0.0f, 1.0f),
     32.0f);
-
+    
     shiny_blue->load_texture("earthp2.jpg", true);
     // Sphere
     auto sphere_transform = std::make_shared<cg::TransformNode>();
     sphere_transform->translate(80.0f, 20.0f, 10.0f);
+    //sphere_transform->rotate_y(180);
     sphere_transform->scale(10.0f, 10.0f, 10.0f);
 
     // Form scene graph

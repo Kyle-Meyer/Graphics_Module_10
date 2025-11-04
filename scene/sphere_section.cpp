@@ -89,7 +89,7 @@ SphereSection::SphereSection(float    min_lat,
         cos_lon = std::cos(curr_lon);
         sin_lon = std::sin(curr_lon);
 
-        float v = 1.0f; // Start from top of texture
+        float v = 0.0f; // Start from top of texture
         for(float curr_lat = max_lat_rad; curr_lat >= min_lat_rad - EPSILON; curr_lat -= d_lat)
         {
             cos_lat = std::cos(curr_lat);
@@ -105,7 +105,7 @@ SphereSection::SphereSection(float    min_lat,
             vtx.texcoord.y = v;
 
             vertices_with_tex_.push_back(vtx);
-            v -= dv;
+            v += dv;
         }
         u += du;
     }

@@ -121,6 +121,7 @@ SurfaceOfRevolution::SurfaceOfRevolution(std::vector<Point3> &v,
         // NOTE: Vertices will be reversed, so we invert v here so it's correct after reversal
         vtx.texcoord.x = 0.0f;
         vtx.texcoord.y = 1.0f - ((vtx_iter_1->z - min_z) / height);
+
         
         vertices_with_tex_.push_back(vtx);
 
